@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -18,13 +20,13 @@ public class WebcrawlerController {
     WebCrawlerService webCrawlerService;
 
     @PostMapping
-    public void performCrawlerSearch(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException {
+    public HashMap performCrawlerSearch(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException {
         log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());
 //        webCrawlerService=(searchRequest)->{
 //            //System.out.println("Drawing "+width);
 //            return null;
 //        };
-        webCrawlerService.performCrawling(crawlerSearchRequest);
-
+        HashMap<String, List<String>> resultMap = webCrawlerService.performCrawling(crawlerSearchRequest);
+        return resultMap;
     }
 }

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import org.jsoup.Jsoup;
@@ -18,9 +21,10 @@ import org.jsoup.nodes.Document;
 public class WebCrawlerServiceImpl implements  WebCrawlerService{
 
     @Override
-    public String performCrawling(CrawlerSearchRequest crawlerSearchRequest)  throws IOException{
+    public HashMap<String, List<String>> performCrawling(CrawlerSearchRequest crawlerSearchRequest)  throws IOException{
         log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
-       Document doc = Jsoup.connect("https://en.wikipedia.org/").get();
+        HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
+       //Document doc = Jsoup.connect("https://en.wikipedia.org/").get();
 //        String title = doc.title();
 //        System.out.println("title is: " + title);
 //
@@ -34,22 +38,30 @@ public class WebCrawlerServiceImpl implements  WebCrawlerService{
        // Document doc = Jsoup.parse(new File("https://en.wikipedia.org/"),"utf-8");
        // Element loginform = doc.getElementById("registerform");
 
-        Elements elements =doc.getAllElements();
 
-        elements.forEach(element -> {
-           // System.out.println("text : " + element.text());
-            if(element.text().toLowerCase().contains(crawlerSearchRequest.getSearchText().toLowerCase())){
-                System.out.println("text : " + element.text());
+        crawlerSearchRequest.getIngestURLs().forEach( url -> {
+            try {
+                List<String> textMatches = new ArrayList<String>();
+                Document document = Jsoup.connect(url).get();
+                //use streams
+                System.out.println("element size : " +  document.getAllElements().size());
+                document.getAllElements().forEach(element -> {
+                    System.out.println("text : " +  element.text());
+                    if(element.text().toLowerCase().contains(crawlerSearchRequest.getSearchText().toLowerCase())){
+                        System.out.println("id : " + element.id() + "Text :" + element.text());
+                        textMatches.add(element.nodeName() +"-" + element.text());
+                    }
+                });
+                resultMap.put(url,textMatches);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
         });
 
-//        Elements inputElements = loginform.getElementsByTag("input");
-//        for (Element inputElement : inputElements) {
-//            String key = inputElement.attr("name");
-//            String value = inputElement.attr("value");
-//            System.out.println("Param name: "+key+" \nParam value: "+value);
-//        }
 
-        return "SUCCESS";
+
+
+        return resultMap;
     }
 }

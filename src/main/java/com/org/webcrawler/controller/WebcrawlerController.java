@@ -22,10 +22,6 @@ public class WebcrawlerController {
     @PostMapping
     public HashMap performCrawlerSearch(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException {
         log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());
-//        webCrawlerService=(searchRequest)->{
-//            //System.out.println("Drawing "+width);
-//            return null;
-//        };
         HashMap<String, List<String>> resultMap = webCrawlerService.performCrawling(crawlerSearchRequest);
         return resultMap;
     }

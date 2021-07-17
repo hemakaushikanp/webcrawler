@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @RestController
@@ -23,6 +26,13 @@ public class WebcrawlerController {
     public HashMap performCrawlerSearch(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException {
         log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());
         HashMap<String, List<String>> resultMap = webCrawlerService.performCrawling(crawlerSearchRequest);
+        return resultMap;
+    }
+
+    @PostMapping(path = "/parallel", consumes = "application/json", produces = "application/json")
+    public List performCrawlerSearchInParallel(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException, ExecutionException, InterruptedException {
+        log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());
+        List<HashMap<String, List<String>>> resultMap = webCrawlerService.performCrawlingForURL(crawlerSearchRequest);
         return resultMap;
     }
 }

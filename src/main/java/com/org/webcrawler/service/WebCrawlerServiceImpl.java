@@ -6,9 +6,10 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
@@ -34,5 +35,35 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
             }
         });
         return resultMap;
+    }
+
+    @Override
+    public List<HashMap<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) throws IOException, ExecutionException, InterruptedException {
+        log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
+        HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
+        List<CompletableFuture<HashMap<String, List<String>>>> completableFutures = crawlerSearchRequest.getIngestURLs().stream()
+                .map(url ->
+                        CompletableFuture.supplyAsync(() ->
+                                searchTextInURL(url, crawlerSearchRequest.getSearchText())))
+                .collect(Collectors.toList());
+
+        return completableFutures.stream().map(CompletableFuture::join)
+                .collect(Collectors.toList());
+    }
+
+    private HashMap<String, List<String>> searchTextInURL(String url, String searchText) {
+        try {
+            HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
+            Document document = Jsoup.connect(url).get();
+            System.out.println("element size : " + document.getAllElements().size());
+            List<String> textMatches = document.getAllElements().stream().
+                    filter(element -> element.text().toLowerCase().contains(searchText.toLowerCase())).distinct()
+                    .map(Element::text).collect(Collectors.toList());
+            resultMap.put(url, textMatches);
+            return resultMap;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

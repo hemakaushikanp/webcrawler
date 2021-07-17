@@ -6,7 +6,9 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -40,11 +42,17 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
     @Override
     public List<HashMap<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) throws IOException, ExecutionException, InterruptedException {
         log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
-        HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
-        List<CompletableFuture<HashMap<String, List<String>>>> completableFutures = crawlerSearchRequest.getIngestURLs().stream()
+        List<String> urlsWithoutDuplicates = new ArrayList<String>(
+                new HashSet<>(crawlerSearchRequest.getIngestURLs()));
+        List<CompletableFuture<HashMap<String, List<String>>>> completableFutures = urlsWithoutDuplicates.stream()
                 .map(url ->
                         CompletableFuture.supplyAsync(() ->
                                 searchTextInURL(url, crawlerSearchRequest.getSearchText())))
+                       /* {
+                                HashMap<String, List<String>> resultMapForURL = searchTextInURL(url, crawlerSearchRequest.getSearchText());
+                                return resultMapForURL;
+                        }
+                        ))*/
                 .collect(Collectors.toList());
 
         return completableFutures.stream().map(CompletableFuture::join)
@@ -55,7 +63,7 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
         try {
             HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
             Document document = Jsoup.connect(url).get();
-            System.out.println("element size : " + document.getAllElements().size());
+           // log.info("element size : " + document.getAllElements().size());
             List<String> textMatches = document.getAllElements().stream().
                     filter(element -> element.text().toLowerCase().contains(searchText.toLowerCase())).distinct()
                     .map(Element::text).collect(Collectors.toList());

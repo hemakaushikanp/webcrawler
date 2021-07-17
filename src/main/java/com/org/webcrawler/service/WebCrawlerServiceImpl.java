@@ -34,7 +34,7 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
     }
 
 
-    private HashMap<String, List<String>> searchTextInURL(String url, String searchText) {
+    public HashMap<String, List<String>> searchTextInURL(String url, String searchText) {
         try {
             HashMap<String, List<String>> resultMap = new HashMap<>();
             Document document = Jsoup.connect(url).get();

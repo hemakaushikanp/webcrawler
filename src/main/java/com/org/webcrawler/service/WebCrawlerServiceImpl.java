@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.jsoup.Jsoup;
@@ -21,39 +20,15 @@ import org.jsoup.nodes.Document;
 @Service
 public class WebCrawlerServiceImpl implements WebCrawlerService {
     @Override
-    public HashMap<String, List<String>> performCrawling(CrawlerSearchRequest crawlerSearchRequest) throws IOException {
+    public List<HashMap<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) {
         log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
-        HashMap<String, List<String>> resultMap = new HashMap<String, List<String>>();
-        crawlerSearchRequest.getIngestURLs().forEach(url -> {
-            try {
-                Document document = Jsoup.connect(url).get();
-                System.out.println("element size : " + document.getAllElements().size());
-                List<String> textMatches = document.getAllElements().stream().
-                        filter(element -> element.text().toLowerCase().contains(crawlerSearchRequest.getSearchText().toLowerCase())).distinct()
-                        .map(Element::text).collect(Collectors.toList());
-                resultMap.put(url, textMatches);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        return resultMap;
-    }
-
-    @Override
-    public List<HashMap<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) throws IOException, ExecutionException, InterruptedException {
-        log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
-        List<String> urlsWithoutDuplicates = new ArrayList<String>(
+        List<String> urlsWithoutDuplicates = new ArrayList<>(
                 new HashSet<>(crawlerSearchRequest.getIngestURLs()));
         List<CompletableFuture<HashMap<String, List<String>>>> completableFutures = urlsWithoutDuplicates.stream()
                 .map(url ->
                         CompletableFuture.supplyAsync(() ->
                                 searchTextInURL(url, crawlerSearchRequest.getSearchText())))
-                       /* {
-                                HashMap<String, List<String>> resultMapForURL = searchTextInURL(url, crawlerSearchRequest.getSearchText());
-                                return resultMapForURL;
-                        }
-                        ))*/
-                .collect(Collectors.toList());
+                                      .collect(Collectors.toList());
 
         return completableFutures.stream().map(CompletableFuture::join)
                 .collect(Collectors.toList());

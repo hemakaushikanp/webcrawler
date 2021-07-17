@@ -22,13 +22,6 @@ public class WebcrawlerController {
     @Autowired
     WebCrawlerService webCrawlerService;
 
-    @PostMapping
-    public HashMap performCrawlerSearch(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException {
-        log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());
-        HashMap<String, List<String>> resultMap = webCrawlerService.performCrawling(crawlerSearchRequest);
-        return resultMap;
-    }
-
     @PostMapping(path = "/parallel", consumes = "application/json", produces = "application/json")
     public List performCrawlerSearchInParallel(@NonNull @RequestBody CrawlerSearchRequest crawlerSearchRequest) throws IOException, ExecutionException, InterruptedException {
         log.info("START : performCrawlerSearch() for text: " + crawlerSearchRequest.getSearchText());

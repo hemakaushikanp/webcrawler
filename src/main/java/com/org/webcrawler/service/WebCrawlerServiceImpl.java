@@ -38,7 +38,7 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
         try {
             HashMap<String, List<String>> resultMap = new HashMap<>();
             Document document = Jsoup.connect(url).get();
-            List<String> textMatches = document.getAllElements().stream().
+            List<String> textMatches = document.getAllElements().parallelStream().
                     filter(element -> element.text().toLowerCase().contains(searchText.toLowerCase())).distinct()
                     .map(Element::text).collect(Collectors.toList());
             resultMap.put(url, textMatches);

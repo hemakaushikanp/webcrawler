@@ -2,8 +2,8 @@
 Crawl url s passed web for searching text 
 This web crawler can ingest a list of URLs and gives me the ability to search for text.
 
-Example JSON paylod for the request and response tested via Postman
-URL: http://localhost:8081/crawler/search
+Example JSON paylod for the request and response tested via Postman pointing to AWS Beanstalk
+URL: http://webcrawler-env.eba-ipy6aggb.us-east-1.elasticbeanstalk.com/crawler/search
 Request Body: 
 {
     "searchText" : "Marvel",

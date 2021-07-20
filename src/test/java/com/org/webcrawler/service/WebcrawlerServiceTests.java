@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,7 +30,7 @@ class WebcrawlerServiceTests {
                 add("web crawler searched for text - Test ");
             }});
         }};
-        List<HashMap<String, List<String>>> searchResults = new ArrayList() {{
+        List<Map<String, List<String>>> searchResults = new ArrayList() {{
             add(resultMap);
         }};
         CrawlerSearchRequest crawlerSearchRequest = new CrawlerSearchRequest();

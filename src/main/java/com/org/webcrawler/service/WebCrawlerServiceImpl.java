@@ -8,10 +8,7 @@ import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -19,11 +16,11 @@ import java.util.stream.Collectors;
 @Service
 public class WebCrawlerServiceImpl implements WebCrawlerService {
     @Override
-    public List<HashMap<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) {
+    public List<Map<String, List<String>>> performCrawlingForURL(CrawlerSearchRequest crawlerSearchRequest) {
         log.info("SERVICE:crawlerSearchRequest:" + crawlerSearchRequest.getIngestURLs().size());
         List<String> urlsWithoutDuplicates = new ArrayList<>(
                 new HashSet<>(crawlerSearchRequest.getIngestURLs()));
-        List<CompletableFuture<HashMap<String, List<String>>>> completableFutures = urlsWithoutDuplicates.stream()
+        List<CompletableFuture<Map<String, List<String>>>> completableFutures = urlsWithoutDuplicates.stream()
                 .map(url ->
                         CompletableFuture.supplyAsync(() ->
                                 searchTextInURL(url, crawlerSearchRequest.getSearchText())))
@@ -34,9 +31,9 @@ public class WebCrawlerServiceImpl implements WebCrawlerService {
     }
 
 
-    public HashMap<String, List<String>> searchTextInURL(String url, String searchText) {
+    public Map<String, List<String>> searchTextInURL(String url, String searchText) {
         try {
-            HashMap<String, List<String>> resultMap = new HashMap<>();
+            Map<String, List<String>> resultMap = new HashMap<>();
             Document document = Jsoup.connect(url).get();
             List<String> textMatches = document.getAllElements().parallelStream().
                     filter(element -> element.text().toLowerCase().contains(searchText.toLowerCase())).distinct()

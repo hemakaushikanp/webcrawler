@@ -2,8 +2,8 @@ package com.org.webcrawler.response;
 
 import lombok.*;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class CrawlerSearchResponse {
-    private List<HashMap<String, List<String>>> searchResults;
+    private List<Map<String, List<String>>> searchResults;
 }
